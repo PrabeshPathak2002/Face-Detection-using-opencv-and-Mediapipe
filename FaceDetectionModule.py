@@ -1,6 +1,16 @@
 import cv2
 import mediapipe as mp
 import time
+import tkinter as tk
+
+
+def get_screen_size():
+    root = tk.Tk()
+    root.withdraw()
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    root.destroy()
+    return width, height
 
 
 class FaceDetection:
@@ -24,6 +34,13 @@ class FaceDetection:
         success, img = self.cap.read()
         if not success:
             return None
+
+        #Resize to fit screen
+        screen_w, screen_h = get_screen_size()
+        h, w = img.shape[:2]
+        scale = min(screen_w / w, screen_h / h)
+        new_w, new_h = int(w * scale), int(h * scale)
+        img = cv2.resize(img, (new_w, new_h))
 
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.faceDetection.process(imgRGB)
